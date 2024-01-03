@@ -1,55 +1,39 @@
-using System.Collections;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;
-    public Transform playerTransform;
-    public int initialEnemyCount = 4;
-    public float spawnInterval = 5f;
-    public float minSpawnDistance = 7f;
+    public GameObject enemyPrefab1;
+    public GameObject enemyPrefab2;
+
+    public float spawnInterval = 2f;
+    public float minY1 = -1f;
+    public float maxY1 = 0f;
+    public float minY2 = 0f;
+    public float maxY2 = 5f;
 
     void Start()
     {
-        SpawnInitialEnemies();
-
-        StartCoroutine(SpawnEnemiesRoutine());
-    }
-
-    void SpawnInitialEnemies()
-    {
-        for (int i = 0; i < initialEnemyCount; i++)
-        {
-            SpawnEnemy();
-        }
-    }
-
-    IEnumerator SpawnEnemiesRoutine()
-    {
-        yield return new WaitForSeconds(spawnInterval);
-
-        while (true)
-        {
-            SpawnEnemy();
-
-            yield return new WaitForSeconds(spawnInterval);
-        }
+        InvokeRepeating("SpawnEnemy", 0f, spawnInterval);
     }
 
     void SpawnEnemy()
     {
-        Vector3 randomSpawnPosition = GetRandomSpawnPosition();
+        float randomY;
+        GameObject selectedPrefab;
 
-        Instantiate(enemyPrefab, randomSpawnPosition, Quaternion.identity);
-    }
+        if (Random.Range(0, 2) == 0)
+        {
+            randomY = Random.Range(minY1, maxY1);
+            selectedPrefab = enemyPrefab1;
+        }
+        else
+        {
+            randomY = Random.Range(minY2, maxY2);
+            selectedPrefab = enemyPrefab2;
+        }
 
-    Vector3 GetRandomSpawnPosition()
-    {
-        Vector3 randomDirection = Random.onUnitSphere;
-        randomDirection.y = 0;
-
-        Vector3 randomSpawnPosition = playerTransform.position + randomDirection * minSpawnDistance;
-
-        return randomSpawnPosition;
+        Vector3 spawnPosition = new Vector3(transform.position.x, randomY, transform.position.z);
+        Quaternion fixedRotation = Quaternion.Euler(0f, 180f, 0f);
+        Instantiate(selectedPrefab, spawnPosition, fixedRotation);
     }
 }
